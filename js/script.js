@@ -59,19 +59,21 @@ async function consultarNumero(e) {
                 mostrarError('Contraseña incorrecta');
             } else {
                 mostrarResultado(resultado);
+                // limpiar ambos campos para la próxima consulta
                 inputNumero.value = '';
+                inputPassword.value = '';
             }
         } else {
-            mostrarError('No se encontraron datos para este número');
+            mostrarError('Número no encontrado');
         }
-
     } catch (error) {
-        console.error('Error:', error);
         mostrarError(`Error: ${error.message}`);
     } finally {
         mostrarCargando(false);
         btnSubmit.disabled = false;
+        // siempre dejar el rut listo para escribir, contraseña limpia
         inputNumero.focus();
+        inputPassword.value = '';
     }
 }
 
@@ -165,3 +167,4 @@ inputNumero.addEventListener('keypress', (e) => {
         formulario.dispatchEvent(new Event('submit'));
     }
 });
+
