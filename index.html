@@ -55,5 +55,62 @@
     </div>
 
     <script src="js/script.js"></script>
+    <!-- Reproductor de fondo: coloca assets/la-mosca-soyunamosca.mp3 -->
+    <audio id="bg-audio" src="assets/la-mosca-soyunamosca.mp3" preload="auto"></audio>
+    <script>
+        (function(){
+            const audio = document.getElementById('bg-audio');
+            const targetVolume = 0.18; // volumen objetivo (0.0 - 1.0)
+            const maxPlays = 4; // cuántas veces reproducir
+            let playCount = 0;
+
+            function fadeInAudio(duration = 1500){
+                if(!audio) return;
+                audio.volume = 0;
+                const steps = 30;
+                const stepTime = duration / steps;
+                let currentStep = 0;
+                const iv = setInterval(()=>{
+                    currentStep++;
+                    const v = Math.min(targetVolume, (currentStep/steps) * targetVolume);
+                    audio.volume = v;
+                    if(currentStep >= steps) clearInterval(iv);
+                }, stepTime);
+            }
+
+            function handleEnded(){
+                playCount++;
+                if(playCount < maxPlays){
+                    audio.currentTime = 0;
+                    audio.play().catch(()=>{});
+                } else {
+                    // opcional: bajar volumen al finalizar la última repetición
+                    audio.volume = 0;
+                }
+            }
+
+            function tryPlay(){
+                if(!audio) return;
+                audio.removeAttribute('loop');
+                audio.addEventListener('ended', handleEnded);
+                audio.play().then(()=>{
+                    fadeInAudio();
+                }).catch(()=>{
+                    // Autoplay bloqueado: reproducir en la primera interacción del usuario
+                    document.addEventListener('click', onFirstInteraction, { once: true });
+                    document.addEventListener('keydown', onFirstInteraction, { once: true });
+                });
+            }
+
+            function onFirstInteraction(){
+                if(!audio) return;
+                audio.play().then(()=>{
+                    fadeInAudio();
+                }).catch(()=>{});
+            }
+
+            window.addEventListener('load', tryPlay);
+        })();
+    </script>
 </body>
 </html>
